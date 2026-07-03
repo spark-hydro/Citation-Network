@@ -1,8 +1,13 @@
 # Citation Network Builder
 
-This tool automatically finds citation relationships between papers saved in Zotero and turns them into Obsidian notes.
+This tool analyzes citation relationships between papers stored in Zotero using the free OpenAlex academic database API, and automatically converts them into linked Obsidian notes.
 
-When you run the program, it displays a list of your Zotero collections. If you select a folder by entering its number, the script analyzes how the papers inside cite each other and saves them as notes in Obsidian. You can then visualize these connections in Obsidian's Graph View.
+### Workflow
+
+1. Zotero: Retrieves paper metadata and collection (folder) structures from your Zotero library.
+2. OpenAlex: Queries the OpenAlex database using paper DOIs to determine citation relationships within the selected collections.
+3. Obsidian: Generates or updates individual paper notes in your vault, complete with wiki-links. You can visualize the citation network using Obsidian's built-in Graph View.
+
 
 
 ## Prerequisites
@@ -14,11 +19,20 @@ When you run the program, it displays a list of your Zotero collections. If you 
 
 ## Installation
 
+### Step 0 - Fork & Clone the Repository
+
+1. Click the Fork button at the top-right of this GitHub repository page to copy it to your own GitHub account.
+2. Clone the repository to your local computer:
+   - Using Git command:
+     git clone https://github.com/your-username/Citation-Network.git
+   - Or open it using GitHub Desktop.
+
 ### Step 1 - Install Dependencies
 
 Open Command Prompt or PowerShell, navigate to this folder, and run:
 
     python -m pip install -r requirements.txt
+
 
 ### Step 2 - Configure API Keys
 

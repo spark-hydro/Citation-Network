@@ -1,8 +1,13 @@
 # Citation Network Builder
 
-Zotero에 저장된 논문들 사이의 인용 관계를 자동으로 찾아서 Obsidian 노트로 만들어주는 도구입니다.
+Zotero에 저장된 논문들의 메타데이터와 무료 학술 데이터베이스인 OpenAlex API를 사용하여 논문들 간의 인용 관계를 분석하고, 이를 Obsidian 노트 및 인용 네트워크(시각화 그래프)로 자동 변환하는 도구입니다.
 
-프로그램을 실행하면 Zotero 폴더 목록이 나타납니다. 번호를 입력해 폴더를 선택하면, 그 안의 논문들이 서로 어떻게 인용하고 인용받는지 분석하여 Obsidian에 노트 파일로 저장됩니다. Obsidian의 Graph View에서 논문들 간의 연결을 시각적으로 확인할 수 있습니다.
+### 작업 흐름
+
+1. Zotero: 내 라이브러리에서 분석할 폴더(컬렉션)와 논문 목록을 수집합니다.
+2. OpenAlex: 각 논문의 DOI를 기반으로 OpenAlex 데이터베이스를 조회하여 해당 폴더 내 논문들 사이의 인용 및 피인용 관계를 찾아냅니다.
+3. Obsidian: 분석 완료된 관계 정보를 바탕으로 개별 논문 노트를 생성하고 내부 링크([[wiki-link]])로 서로 연결합니다. Obsidian의 Graph View를 통해 인용망을 시각화합니다.
+
 
 
 ## 필요한 것
@@ -14,11 +19,20 @@ Zotero에 저장된 논문들 사이의 인용 관계를 자동으로 찾아서 
 
 ## 처음 설치 방법
 
+### 0단계 - 저장소 가져오기 (Fork & Clone)
+
+1. 이 저장소의 GitHub 페이지 우측 상단에 있는 Fork 버튼을 클릭하여 본인 계정으로 저장소를 복제합니다.
+2. 복제된 본인의 GitHub 저장소에서 코드를 로컬 컴퓨터로 복제(Clone)하거나 다운로드하여 적당한 폴더에 압축을 풉니다.
+   - Git 명령어를 사용하는 경우:
+     git clone https://github.com/본인계정명/Citation-Network.git
+   - 또는 GitHub Desktop 프로그램을 사용하여 내 로컬 폴더로 가져옵니다.
+
 ### 1단계 - 패키지 설치
 
 명령 프롬프트(cmd) 또는 PowerShell을 열고 이 폴더로 이동한 뒤 아래 명령어를 실행합니다.
 
     python -m pip install -r requirements.txt
+
 
 ### 2단계 - API 키 설정
 
