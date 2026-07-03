@@ -111,8 +111,9 @@ class ZoteroClient:
                 return {}
 
         result = {}
-        iterator = tqdm(collections, desc="컬렉션 조회") if progress else collections
+        iterator = tqdm(collections, desc="Fetching collections") if progress else collections
         for col in iterator:
+
             papers = self.get_items_in_collection(col['key'])
             if papers:
                 result[col['name']] = {

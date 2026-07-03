@@ -1,8 +1,8 @@
 """
 src/openalex_client.py
-OpenAlex API로 논문 인용 관계를 조회합니다.
-- DOI → OpenAlex Work (referenced_works 포함)
-- 결과를 JSON 캐시에 저장하여 재실행 시 API 재호출 없음
+Fetches paper citation relationships using the OpenAlex API.
+- DOI -> OpenAlex Work (includes referenced_works)
+- Saves results to a JSON cache to avoid duplicate API requests.
 """
 import json
 import os
@@ -24,12 +24,12 @@ class OpenAlexClient:
         self.session.headers.update({
             'User-Agent': 'CitationNetworkBuilder/1.0 (https://github.com/idlhy0218/Citation-Network)',
         })
-        # Polite pool: 이메일 등록 시 더 높은 rate limit
+        # Polite pool: email registration grants higher rate limit
         if email:
             self.session.params = {'mailto': email}
 
     # ------------------------------------------------------------------ #
-    # 캐시
+    # Cache
     # ------------------------------------------------------------------ #
     def _load_cache(self) -> dict:
         if os.path.exists(self.cache_file):
@@ -58,21 +58,21 @@ class OpenAlexClient:
                     return None
                 if resp.status_code == 429:
                     wait = 15 * (attempt + 1)
-                    print(f"\n  ⚠️  Rate limit (429). {wait}초 대기...")
+                    print(f"\n  Rate limit encountered (429). Waiting for {wait} seconds...")
                     time.sleep(wait)
                 else:
-                    print(f"\n  ⚠️  HTTP {resp.status_code} for {url}")
+                    print(f"\n  HTTP {resp.status_code} for {url}")
                     time.sleep(2)
             except requests.exceptions.Timeout:
-                print(f"\n  ⚠️  Timeout (시도 {attempt+1}/{retries})")
+                print(f"\n  Timeout (Attempt {attempt+1}/{retries})")
                 time.sleep(3)
             except requests.exceptions.RequestException as e:
-                print(f"\n  ⚠️  요청 에러: {e}")
+                print(f"\n  Request error: {e}")
                 time.sleep(3)
         return None
 
     # ------------------------------------------------------------------ #
-    # DOI → OpenAlex Work
+    # DOI -> OpenAlex Work
     # ------------------------------------------------------------------ #
     @staticmethod
     def _normalize_doi(doi: str) -> str:
@@ -81,7 +81,7 @@ class OpenAlexClient:
         return doi
 
     def get_work_by_doi(self, doi: str) -> dict | None:
-        """DOI로 OpenAlex Work 조회 (캐시 사용)"""
+        """Retrieves OpenAlex Work using DOI (utilizes cache)"""
         if not doi:
             return None
 
@@ -92,12 +92,12 @@ class OpenAlexClient:
             return self.cache[cache_key]
 
         data = self._get(f"{self.BASE_URL}/works/doi:{doi_norm}")
-        self.cache[cache_key] = data     # None도 저장 (재조회 방지)
-        time.sleep(0.12)                 # ~8 req/sec
+        self.cache[cache_key] = data     # Store None to prevent duplicate queries
+        time.sleep(0.12)                 # limit rate to ~8 req/sec
         return data
 
     # ------------------------------------------------------------------ #
-    # Abstract 재구성 (OpenAlex inverted index → 평문)
+    # Abstract reconstruction (OpenAlex inverted index -> plain text)
     # ------------------------------------------------------------------ #
     @staticmethod
     def _reconstruct_abstract(inverted_index: dict) -> str:
@@ -111,21 +111,21 @@ class OpenAlexClient:
         return ' '.join(w for _, w in word_positions)
 
     # ------------------------------------------------------------------ #
-    # 인용 네트워크 구축
+    # Build citation network
     # ------------------------------------------------------------------ #
     def build_citation_network(
         self,
         papers_by_collection: dict,
     ) -> tuple[dict, dict, dict]:
         """
-        컬렉션별 논문 dict를 받아 인용 관계를 구축합니다.
+        Builds citation relationships from paper data grouped by collection.
 
-        반환:
-            cites      : {doi: [doi, ...]}   — 이 논문이 인용한 컬렉션 내 논문 DOI
-            cited_by   : {doi: [doi, ...]}   — 이 논문을 인용한 컬렉션 내 논문 DOI
-            all_papers : {doi: paper_meta}   — doi 키로 통합된 논문 정보
+        Returns:
+            cites      : {doi: [doi, ...]}   - Paper DOIs cited by this paper (within collections)
+            cited_by   : {doi: [doi, ...]}   - Paper DOIs that cite this paper (within collections)
+            all_papers : {doi: paper_meta}   - Aggregated paper metadata keyed by DOI
         """
-        # 모든 논문을 doi → meta 로 통합
+        # Aggregate all papers: doi -> meta
         all_papers: dict[str, dict] = {}
         for col_data in papers_by_collection.values():
             for paper in col_data['papers']:
@@ -133,9 +133,9 @@ class OpenAlexClient:
                 if doi:
                     all_papers[doi] = paper
 
-        print(f"\n🔍 OpenAlex에서 {len(all_papers)}개 논문 인용 관계 조회 중...")
+        print(f"\nQuerying OpenAlex for {len(all_papers)} papers...")
 
-        # Step 1: 각 DOI → OpenAlex ID 매핑
+        # Step 1: Map each DOI to OpenAlex ID
         doi_to_oa_id: dict[str, str] = {}
         oa_id_to_doi: dict[str, str] = {}
         doi_to_referenced: dict[str, list[str]] = {}
@@ -143,29 +143,29 @@ class OpenAlexClient:
         no_doi_papers = [p for col in papers_by_collection.values()
                          for p in col['papers'] if not p.get('doi')]
         if no_doi_papers:
-            print(f"  ⚠️  DOI 없는 논문 {len(no_doi_papers)}개 스킵")
+            print(f"  Skipped {len(no_doi_papers)} papers without a DOI")
 
-        for doi in tqdm(list(all_papers.keys()), desc="OpenAlex 조회"):
+        for doi in tqdm(list(all_papers.keys()), desc="OpenAlex lookup"):
             work = self.get_work_by_doi(doi)
             if not work:
                 continue
 
-            # OpenAlex ID (예: "https://openalex.org/W12345" → "W12345")
+            # OpenAlex ID (e.g. "https://openalex.org/W12345" -> "W12345")
             oa_id = work.get('id', '').split('/')[-1]
             if oa_id:
                 doi_to_oa_id[doi] = oa_id
                 oa_id_to_doi[oa_id] = doi
 
-            # referenced_works: 이 논문이 인용한 논문들의 OpenAlex ID URL 리스트
+            # referenced_works: OpenAlex IDs of references cited by this paper
             doi_to_referenced[doi] = [
                 ref_url.split('/')[-1]
                 for ref_url in work.get('referenced_works', [])
             ]
 
-            # OpenAlex에서 피인용 수 보강
+            # Augment citation count from OpenAlex
             all_papers[doi]['citation_count'] = work.get('cited_by_count', 0)
 
-            # OpenAlex에서 초록 보강 (Zotero에 없는 경우)
+            # Augment abstract from OpenAlex if missing in Zotero
             if not all_papers[doi].get('abstract'):
                 abstract_idx = work.get('abstract_inverted_index')
                 if abstract_idx:
@@ -173,7 +173,7 @@ class OpenAlexClient:
 
         self._save_cache()
 
-        # Step 2: OpenAlex ID 기반으로 인용 엣지 생성
+        # Step 2: Create citation edges based on OpenAlex IDs
         cites: dict[str, list[str]] = {doi: [] for doi in all_papers}
         cited_by: dict[str, list[str]] = {doi: [] for doi in all_papers}
 
@@ -188,6 +188,6 @@ class OpenAlexClient:
 
         total_edges = sum(len(v) for v in cites.values())
         found = len(doi_to_oa_id)
-        print(f"  ✅ OpenAlex 매칭: {found}/{len(all_papers)}개 | 인용 엣지: {total_edges}개")
+        print(f"  OpenAlex matches: {found}/{len(all_papers)} | Citation edges: {total_edges}")
 
         return cites, cited_by, all_papers
