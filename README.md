@@ -24,8 +24,9 @@ This tool analyzes citation relationships between papers stored in Zotero using 
 1. Click the Fork button at the top-right of this GitHub repository page to copy it to your own GitHub account.
 2. Clone the repository to your local computer:
    - Using Git command:
-     git clone https://github.com/your-username/Citation-Network.git
+     git clone https://github.com/idlhy0218/Citation-Network.git
    - Or open it using GitHub Desktop.
+
 
 ### Step 1 - Install Dependencies
 
