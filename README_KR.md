@@ -71,10 +71,19 @@ python -m pip install -r requirements.txt
    * **OBSIDIAN_VAULT_PATH**: Obsidian을 열었을 때 보이는 볼트 폴더의 전체 경로를 입력합니다. (예: `C:\Users\Username\Documents\MyVault`)
 
 ```ini
+# [필수 입력] Zotero API 정보와 Obsidian 경로
 ZOTERO_USER_ID=본인의 Zotero 사용자 ID (숫자)
 ZOTERO_API_KEY=본인의 Zotero API 키
 OBSIDIAN_VAULT_PATH=C:\Users\사용자이름\경로\Obsidian 볼트 폴더
+
+# [선택 입력] 환경에 맞게 나만의 폴더명 설정 및 속도 개선
+CITATION_NETWORK_FOLDER=Citation Network
+OPENALEX_EMAIL=your_email@domain.com
 ```
+
+3. **내 취향에 맞게 설정 변경하기 (선택 사항)**:
+   * **노트 저장 폴더명 변경**: Obsidian 볼트 내에서 노트가 생성될 폴더의 이름을 나만의 이름으로 바꾸고 싶다면 `CITATION_NETWORK_FOLDER` 값을 원하는 이름(예: `인용망 분석` 등)으로 변경합니다. 기본값은 `Citation Network`입니다.
+   * **OpenAlex API 속도 개선**: 수집할 논문의 양이 수십 개 이상으로 많다면 `OPENALEX_EMAIL` 부분에 본인의 실제 이메일 주소를 입력해 주세요. OpenAlex API 측에서 신원 식별을 해주는 사용자에게 더 빠른 API 요청 대역폭(Polite Pool)을 무료로 제공해 주므로 작업 속도가 현저히 빨라집니다.
 
 
 ### 3단계 - 연결 확인
@@ -147,7 +156,7 @@ python main.py --test
 
 ## 결과물 확인 방법
 
-노트는 Obsidian 볼트 내 `.env` 파일에 설정한 폴더(기본값: `13. Citation Network`) 안에 생성됩니다.
+노트는 Obsidian 볼트 내 `.env` 파일에 설정한 폴더(기본값: `Citation Network`) 안에 생성됩니다.
 
 각 폴더 안에는 아래 두 종류의 파일이 만들어집니다.
 
@@ -155,7 +164,7 @@ python main.py --test
 - `_Index.md` : 해당 폴더의 전체 논문 목록 표.
 
 Obsidian에서 Graph View를 열면 논문들 사이의 인용 관계가 시각적으로 표시됩니다.
-Graph View에서 필터 입력란에 `path:"설정한 폴더명"` (예: `path:"13. Citation Network"`)을 입력하면 이 도구로 만든 노트만 표시됩니다.
+Graph View에서 필터 입력란에 `path:"설정한 폴더명"` (예: `path:"Citation Network"`)을 입력하면 이 도구로 만든 노트만 표시됩니다.
 
 
 ## 알아두면 좋은 것

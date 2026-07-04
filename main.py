@@ -15,8 +15,8 @@ load_dotenv()
 # -- Config (Loaded from .env) -----------------------------------------
 ZOTERO_USER_ID  = os.getenv('ZOTERO_USER_ID', '')
 ZOTERO_API_KEY  = os.getenv('ZOTERO_API_KEY', '')
-OBSIDIAN_VAULT  = os.getenv('OBSIDIAN_VAULT_PATH', r'C:\Users\User\OneDrive\Obsidian')
-OUTPUT_FOLDER   = os.getenv('CITATION_NETWORK_FOLDER', '13. Citation Network')
+OBSIDIAN_VAULT  = os.getenv('OBSIDIAN_VAULT_PATH', '')
+OUTPUT_FOLDER   = os.getenv('CITATION_NETWORK_FOLDER', 'Citation Network')
 OPENALEX_EMAIL  = os.getenv('OPENALEX_EMAIL', '')
 CACHE_FILE      = os.path.join(os.path.dirname(__file__), 'cache', 'openalex_cache.json')
 
@@ -110,8 +110,8 @@ def main():
     print("  Citation Network Builder")
     print("=" * 60)
 
-    if not ZOTERO_USER_ID or not ZOTERO_API_KEY:
-        print("Error: ZOTERO_USER_ID and ZOTERO_API_KEY must be configured in your .env file.")
+    if not ZOTERO_USER_ID or not ZOTERO_API_KEY or not OBSIDIAN_VAULT:
+        print("Error: ZOTERO_USER_ID, ZOTERO_API_KEY, and OBSIDIAN_VAULT_PATH must be configured in your .env file.")
         sys.exit(1)
 
     zotero   = ZoteroClient(ZOTERO_USER_ID, ZOTERO_API_KEY)

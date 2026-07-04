@@ -71,10 +71,19 @@ When you first clone this repository, you only have the template config file. Yo
    * **OBSIDIAN_VAULT_PATH**: The absolute path to your Obsidian Vault folder (e.g. `C:\Users\YourName\Documents\MyVault`).
 
 ```ini
+# [Required] Zotero API credentials & Obsidian path
 ZOTERO_USER_ID=Your Zotero User ID (digits)
 ZOTERO_API_KEY=Your Zotero API Key
 OBSIDIAN_VAULT_PATH=C:\Users\YourUsername\Path\To\Obsidian\Vault
+
+# [Optional] Personalize folder name & increase request speed
+CITATION_NETWORK_FOLDER=Citation Network
+OPENALEX_EMAIL=your_email@domain.com
 ```
+
+3. **Personalizing Your Configuration (Optional)**:
+   * **Change Output Folder Name**: If you want the notes to be saved in a folder other than the default `Citation Network`, modify `CITATION_NETWORK_FOLDER` to your preferred folder name (e.g., `My Citations`).
+   * **Improve OpenAlex API Speed**: If you have a large library (dozens of papers or more), add your email address in `OPENALEX_EMAIL`. OpenAlex offers a faster rate limit ("Polite Pool") for users who identify themselves via email.
 
 
 ### Step 3 - Test the Connection
@@ -147,14 +156,14 @@ Wrap the collection name in quotation marks. Subfolders will be automatically in
 
 ## Viewing the Output
 
-Notes are generated under the folder specified by `CITATION_NETWORK_FOLDER` in your `.env` file (defaults to `13. Citation Network`) inside your Obsidian Vault.
+Notes are generated under the folder specified by `CITATION_NETWORK_FOLDER` in your `.env` file (defaults to `Citation Network`) inside your Obsidian Vault.
 
 Inside each collection folder, you will find:
 
 - `citekey.md`: Individual paper notes containing references to other papers.
 - `_Index.md`: A summary table of all papers in that folder.
 
-Open Graph View in Obsidian to see the network. You can filter the graph by entering `path:"Your Folder Name"` (e.g. `path:"13. Citation Network"`) in the graph filter bar to show only these citation notes.
+Open Graph View in Obsidian to see the network. You can filter the graph by entering `path:"Your Folder Name"` (e.g. `path:"Citation Network"`) in the graph filter bar to show only these citation notes.
 
 
 ## Good to Know
