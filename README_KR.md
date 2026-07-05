@@ -1,5 +1,5 @@
 # Citation Network Builder
-![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white) [![Stars](https://img.shields.io/github/stars/idlhy0218/Citation-Network?style=flat-square)](https://github.com/idlhy0218/Citation-Network/stargazers) ![Version](https://img.shields.io/badge/version-1.0.0-blue?style=flat-square)
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white) [![Stars](https://img.shields.io/github/stars/idlhy0218/Citation-Network?style=flat-square)](https://github.com/idlhy0218/Citation-Network/stargazers) ![Version](https://img.shields.io/badge/version-1.0.1-blue?style=flat-square)
 
 Zotero에 저장된 논문들의 메타데이터와 무료 학술 데이터베이스인 OpenAlex API를 사용하여 논문들 간의 인용 관계를 분석하고, 이를 Obsidian 노트 및 인용 네트워크(시각화 그래프)로 자동 변환하는 도구입니다.
 
@@ -77,12 +77,14 @@ ZOTERO_USER_ID=본인의 Zotero 사용자 ID (숫자)
 ZOTERO_API_KEY=본인의 Zotero API 키
 OBSIDIAN_VAULT_PATH=C:\Users\사용자이름\경로\Obsidian 볼트 폴더
 
-# [선택 입력] 환경에 맞게 나만의 폴더명 설정 및 속도 개선
+# [선택 입력] 추가 설정
+ZOTERO_LIBRARY_TYPE=user
 CITATION_NETWORK_FOLDER=Citation Network
 OPENALEX_EMAIL=your_email@domain.com
 ```
 
 3. **내 취향에 맞게 설정 변경하기 (선택 사항)**:
+   * **Zotero 라이브러리 타입**: 개인 라이브러리가 아닌 그룹 라이브러리의 데이터를 연동하려는 경우 `ZOTERO_LIBRARY_TYPE` 값을 `user`에서 `group`으로 변경합니다.
    * **노트 저장 폴더명 변경**: Obsidian 볼트 내에서 노트가 생성될 폴더의 이름을 나만의 이름으로 바꾸고 싶다면 `CITATION_NETWORK_FOLDER` 값을 원하는 이름(예: `인용망 분석` 등)으로 변경합니다. 기본값은 `Citation Network`입니다.
    * **OpenAlex API 속도 개선**: 수집할 논문의 양이 수십 개 이상으로 많다면 `OPENALEX_EMAIL` 부분에 본인의 실제 이메일 주소를 입력해 주세요. OpenAlex API 측에서 신원 식별을 해주는 사용자에게 더 빠른 API 요청 대역폭(Polite Pool)을 무료로 제공해 주므로 작업 속도가 현저히 빨라집니다.
 
@@ -166,6 +168,9 @@ python main.py --test
 
 Obsidian에서 Graph View를 열면 논문들 사이의 인용 관계가 시각적으로 표시됩니다.
 Graph View에서 필터 입력란에 `path:"설정한 폴더명"` (예: `path:"Citation Network"`)을 입력하면 이 도구로 만든 노트만 표시됩니다.
+
+> [!TIP]
+> **인용 방향 화살표 표시 (v1.0.1+)**: Obsidian 그래프 뷰 설정에서 **화살표(Arrows)** 기능을 활성화해 주세요. 화살표는 인용하는 논문에서 피인용 논문 방향으로 연결됩니다 (A ──> B는 A 논문이 B 논문을 인용했다는 의미입니다). 나를 인용한 논문(`Cited by`) 섹션은 그래프 뷰에서 양방향 화살표가 그려져 관계가 왜곡되는 것을 막기 위해 위키링크가 아닌 일반 텍스트로 표기됩니다.
 
 
 ## 알아두면 좋은 것

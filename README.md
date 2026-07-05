@@ -1,5 +1,5 @@
 # Citation Network Builder
-![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white) [![Stars](https://img.shields.io/github/stars/idlhy0218/Citation-Network?style=flat-square)](https://github.com/idlhy0218/Citation-Network/stargazers) ![Version](https://img.shields.io/badge/version-1.0.0-blue?style=flat-square)
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white) [![Stars](https://img.shields.io/github/stars/idlhy0218/Citation-Network?style=flat-square)](https://github.com/idlhy0218/Citation-Network/stargazers) ![Version](https://img.shields.io/badge/version-1.0.1-blue?style=flat-square)
 
 This tool analyzes citation relationships between papers stored in Zotero using the free OpenAlex academic database API, and automatically converts them into linked Obsidian notes.
 
@@ -77,12 +77,14 @@ ZOTERO_USER_ID=Your Zotero User ID (digits)
 ZOTERO_API_KEY=Your Zotero API Key
 OBSIDIAN_VAULT_PATH=C:\Users\YourUsername\Path\To\Obsidian\Vault
 
-# [Optional] Personalize folder name & increase request speed
+# [Optional] Additional settings
+ZOTERO_LIBRARY_TYPE=user
 CITATION_NETWORK_FOLDER=Citation Network
 OPENALEX_EMAIL=your_email@domain.com
 ```
 
 3. **Personalizing Your Configuration (Optional)**:
+   * **Zotero Library Type**: If you are extracting citations from a group library rather than a personal one, change `ZOTERO_LIBRARY_TYPE` from `user` to `group`.
    * **Change Output Folder Name**: If you want the notes to be saved in a folder other than the default `Citation Network`, modify `CITATION_NETWORK_FOLDER` to your preferred folder name (e.g., `My Citations`).
    * **Improve OpenAlex API Speed**: If you have a large library (dozens of papers or more), add your email address in `OPENALEX_EMAIL`. OpenAlex offers a faster rate limit ("Polite Pool") for users who identify themselves via email.
 
@@ -165,6 +167,9 @@ Inside each collection folder, you will find:
 - `_Index.md`: A summary table of all papers in that folder.
 
 Open Graph View in Obsidian to see the network. You can filter the graph by entering `path:"Your Folder Name"` (e.g. `path:"Citation Network"`) in the graph filter bar to show only these citation notes.
+
+> [!TIP]
+> **Directional Citation Arrows (v1.0.1+)**: Under Obsidian Graph View settings, enable **Arrows**. The arrows point from the citing paper to the cited paper (A ──> B means paper A cites paper B). The "Cited by" section inside each note lists citing papers as plain text to prevent cluttering the graph with bidirectional arrows.
 
 
 ## Good to Know

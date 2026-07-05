@@ -33,7 +33,7 @@ class ObsidianWriter:
     def _wiki_link(self, paper: dict, for_table: bool = False) -> str:
         """
         Returns a wiki-link.
-        for_table=True escapes the alias separator as \\| to prevent
+        for_table=True escapes the alias separator as \| to prevent
         breaking markdown table columns.
         """
         filename = self.get_paper_filename(paper).replace('.md', '')
@@ -49,6 +49,26 @@ class ObsidianWriter:
 
         sep = r'\|' if for_table else '|'
         return f"[[{filename}{sep}{label}]]"
+
+    @staticmethod
+    def _plain_text_reference(paper: dict) -> str:
+        """Returns a plain text representation of the paper (no wiki-link)"""
+        authors = paper.get('authors', [])
+        year    = paper.get('year', '')
+        title   = paper.get('title', 'Untitled')
+        citekey = paper.get('citekey', '')
+
+        if authors:
+            last  = authors[0].split(',')[0].strip()
+            et_al = ' et al.' if len(authors) > 1 else ''
+            author_year = f"{last}{et_al} ({year})" if year else last
+        else:
+            author_year = year or 'Unknown'
+
+        ref = f"{author_year} - {title}"
+        if citekey:
+            ref += f" (`{citekey}`)"
+        return ref
 
     # ------------------------------------------------------------------ #
     # YAML helpers
@@ -126,7 +146,7 @@ class ObsidianWriter:
 
         if cited_by_papers:
             cited_by_section = "### Cited by (within collection)\n" + \
-                '\n'.join(f"- {self._wiki_link(p)}" for p in cited_by_papers)
+                '\n'.join(f"- {self._plain_text_reference(p)}" for p in cited_by_papers)
         else:
             cited_by_section = "### Cited by (within collection)\nNone"
 

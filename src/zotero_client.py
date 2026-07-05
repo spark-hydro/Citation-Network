@@ -1,6 +1,6 @@
 """
 src/zotero_client.py
-Zotero Web API에서 컬렉션 및 논문 메타데이터를 가져옵니다.
+Fetches collection and paper metadata from Zotero Web API.
 """
 import re
 from pyzotero import zotero
@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 
 class ZoteroClient:
-    """Zotero API 클라이언트"""
+    """Zotero API client"""
 
     PAPER_TYPES = {
         'journalArticle', 'conferencePaper', 'book',
@@ -19,10 +19,10 @@ class ZoteroClient:
         self.zot = zotero.Zotero(library_id, library_type, api_key)
 
     # ------------------------------------------------------------------ #
-    # 컬렉션
+    # Collections
     # ------------------------------------------------------------------ #
     def get_collections(self) -> list[dict]:
-        """모든 컬렉션 반환: [{key, name, parent_key}]"""
+        """Returns all collections: [{key, name, parent_key}]"""
         raw = self.zot.collections()
         return [
             {
@@ -35,11 +35,11 @@ class ZoteroClient:
 
     def get_collection_tree(self) -> tuple[dict, list]:
         """
-        컬렉션 트리 구조를 반환합니다.
+        Returns the collection tree structure.
 
         Returns:
             tree  : {key: {name, parent_key, children: [key, ...]}}
-            roots : 최상위 컬렉션 key 리스트 (부모 없는 것)
+            roots : List of root collection keys (those without parents)
         """
         cols = self.get_collections()
         tree = {c['key']: {**c, 'children': []} for c in cols}
@@ -52,7 +52,7 @@ class ZoteroClient:
             else:
                 roots.append(key)
 
-        # 이름순 정렬
+        # Sort by name
         roots.sort(key=lambda k: tree[k]['name'])
         for col in tree.values():
             col['children'].sort(key=lambda k: tree[k]['name'])
@@ -61,7 +61,7 @@ class ZoteroClient:
 
     def get_papers_in_subtree(self, collection_key: str, tree: dict) -> dict:
         """
-        선택한 컬렉션과 모든 하위 컬렉션의 논문을 재귀 수집합니다.
+        Recursively collects papers from the selected collection and all its subcollections.
 
         Returns:
             {col_name: {key, parent_key, papers: [...]}, ...}
@@ -69,7 +69,7 @@ class ZoteroClient:
         result = {}
         col = tree[collection_key]
 
-        # 현재 컬렉션 논문
+        # Papers in the current collection
         papers = self.get_items_in_collection(collection_key)
         if papers:
             result[col['name']] = {
@@ -78,17 +78,17 @@ class ZoteroClient:
                 'papers': papers,
             }
 
-        # 하위 컬렉션 재귀
+        # Recursively fetch subcollections
         for child_key in col['children']:
             result.update(self.get_papers_in_subtree(child_key, tree))
 
         return result
 
     # ------------------------------------------------------------------ #
-    # 항목 수집
+    # Item Retrieval
     # ------------------------------------------------------------------ #
     def get_items_in_collection(self, collection_key: str) -> list[dict]:
-        """컬렉션 내 논문 항목의 메타데이터 리스트 반환"""
+        """Returns a list of metadata for paper items in a collection"""
         raw_items = self.zot.everything(self.zot.collection_items(collection_key))
         papers = []
         for item in raw_items:
@@ -100,8 +100,8 @@ class ZoteroClient:
 
     def get_all_collections_with_papers(self, progress: bool = True, key_filter: str = '') -> dict:
         """
-        모든 컬렉션(또는 특정 key의 컬렉션)과 논문을 반환.
-        key_filter: 컬렉션 key ('' 이면 전체)
+        Returns all collections (or a specific collection by key) and their papers.
+        key_filter: Collection key ('' to fetch all)
         """
         collections = self.get_collections()
 
@@ -125,7 +125,7 @@ class ZoteroClient:
         return result
 
     # ------------------------------------------------------------------ #
-    # 메타데이터 추출
+    # Metadata Extraction
     # ------------------------------------------------------------------ #
     def _extract_metadata(self, item: dict) -> dict | None:
         data = item['data']
@@ -134,18 +134,18 @@ class ZoteroClient:
         if not title:
             return None
 
-        # DOI 정규화
+        # Normalize DOI
         doi = data.get('DOI', '').strip().lower()
         doi = doi.replace('https://doi.org/', '').replace('http://doi.org/', '').strip('/')
 
-        # citekey (Better BibTeX Extra 필드)
+        # citekey (Better BibTeX Extra field)
         citekey = self._parse_citekey(data.get('extra', ''))
 
-        # citekey 없으면 자동 생성
+        # Auto-generate citekey if not present
         if not citekey:
             citekey = self._generate_citekey(data)
 
-        # 저자
+        # Authors
         creators = data.get('creators', [])
         authors = []
         for c in creators:
@@ -156,12 +156,12 @@ class ZoteroClient:
                 if name:
                     authors.append(name)
 
-        # 연도
+        # Year
         date_str = data.get('date', '')
         year = re.search(r'\d{4}', date_str)
         year = year.group(0) if year else ''
 
-        # 저널/출판사
+        # Journal/Publisher
         journal = (
             data.get('publicationTitle')
             or data.get('bookTitle')
@@ -187,7 +187,7 @@ class ZoteroClient:
 
     @staticmethod
     def _parse_citekey(extra: str) -> str | None:
-        """Extra 필드에서 Better BibTeX Citation Key 파싱"""
+        """Parses Better BibTeX Citation Key from the Extra field"""
         for line in extra.splitlines():
             line = line.strip()
             lower = line.lower()
@@ -199,7 +199,7 @@ class ZoteroClient:
 
     @staticmethod
     def _generate_citekey(data: dict) -> str:
-        """citekey가 없을 때 자동 생성: lastname_year_journalabbrev"""
+        """Generates citekey if missing: lastname_year_journalabbrev"""
         creators = data.get('creators', [])
         last_name = ''
         for c in creators:

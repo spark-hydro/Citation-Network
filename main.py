@@ -1,6 +1,8 @@
 """
 Citation Network Builder
 ========================
+Version: 1.0.1
+
 python main.py                             -> Collection selection tree
 python main.py --collection "Folder Name"  -> Process folder immediately (includes subfolders)
 python main.py --test                      -> Test API connections
@@ -13,12 +15,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # -- Config (Loaded from .env) -----------------------------------------
-ZOTERO_USER_ID  = os.getenv('ZOTERO_USER_ID', '')
-ZOTERO_API_KEY  = os.getenv('ZOTERO_API_KEY', '')
-OBSIDIAN_VAULT  = os.getenv('OBSIDIAN_VAULT_PATH', '')
-OUTPUT_FOLDER   = os.getenv('CITATION_NETWORK_FOLDER', 'Citation Network')
-OPENALEX_EMAIL  = os.getenv('OPENALEX_EMAIL', '')
-CACHE_FILE      = os.path.join(os.path.dirname(__file__), 'cache', 'openalex_cache.json')
+ZOTERO_USER_ID      = os.getenv('ZOTERO_USER_ID', '')
+ZOTERO_API_KEY      = os.getenv('ZOTERO_API_KEY', '')
+ZOTERO_LIBRARY_TYPE = os.getenv('ZOTERO_LIBRARY_TYPE', 'user')
+OBSIDIAN_VAULT      = os.getenv('OBSIDIAN_VAULT_PATH', '')
+OUTPUT_FOLDER       = os.getenv('CITATION_NETWORK_FOLDER', 'Citation Network')
+OPENALEX_EMAIL      = os.getenv('OPENALEX_EMAIL', '')
+CACHE_FILE          = os.path.join(os.path.dirname(__file__), 'cache', 'openalex_cache.json')
 
 sys.path.insert(0, os.path.dirname(__file__))
 from src.zotero_client   import ZoteroClient
@@ -114,7 +117,7 @@ def main():
         print("Error: ZOTERO_USER_ID, ZOTERO_API_KEY, and OBSIDIAN_VAULT_PATH must be configured in your .env file.")
         sys.exit(1)
 
-    zotero   = ZoteroClient(ZOTERO_USER_ID, ZOTERO_API_KEY)
+    zotero   = ZoteroClient(ZOTERO_USER_ID, ZOTERO_API_KEY, library_type=ZOTERO_LIBRARY_TYPE)
     openalex = OpenAlexClient(email=OPENALEX_EMAIL, cache_file=CACHE_FILE)
     writer   = ObsidianWriter(OBSIDIAN_VAULT, OUTPUT_FOLDER)
 
